@@ -20,9 +20,14 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import {HashInfoBox} from './HashInfoBox'
-import {blake2bHex} from 'blakejs'
-import md5 from 'md5'
 import Dropzone from 'react-dropzone'
+import {hashFunctionProps} from './HashFunctionDefinitions'
+import HashWorker from './HashWorker.worker'
+import Button from '@material-ui/core/Button'
+import Link from '@material-ui/core/Link'
+import GitHubIcon from '@material-ui/icons/GitHub';
+
+const hashWorker = new HashWorker() // FIXME: put in component mounted?
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -213,6 +218,16 @@ function PrimarySearchAppBar(props) {
               <MoreIcon/>
             </IconButton>
           </div>
+          <Button
+            href="https://github.com/pRizz/multi-hash"
+            target="_blank"
+            rel="noopener"
+            variant="contained"
+            className={classes.button}
+            startIcon={<GitHubIcon />}
+          >
+            Source Code
+          </Button>
         </Toolbar>
       </AppBar>
       {renderMobileMenu}
@@ -252,22 +267,6 @@ function formatBytes(numberOfBytes) {
   return `${numberOfBytes} bytes`
 }
 
-// from https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
-function hashToHex(buffer) {
-  const hexCodes = []
-  const view = new DataView(buffer)
-
-  for (let i = 0; i < view.byteLength; i += 4) {
-    const value = view.getUint32(i)
-    const stringValue = value.toString(16)
-    const padding = '00000000'
-    const paddedValue = (padding + stringValue).slice(-padding.length)
-    hexCodes.push(paddedValue)
-  }
-
-  return hexCodes.join('')
-}
-
 // from https://jsperf.com/utf-8-byte-length
 // returns the byte length of a utf8 string
 function byteLength(str) {
@@ -280,57 +279,6 @@ function byteLength(str) {
   return s;
 }
 
-const hashFunctionProps = [
-  {
-    hashingFunctionName: "SHA-1",
-    hashingFunctionAsync: (bufferToHash) => {
-      return crypto.subtle.digest('SHA-1', bufferToHash).then(hash => {
-        return hashToHex(hash)
-      })
-    }
-  },
-  {
-    hashingFunctionName: 'SHA-256',
-    hashingFunctionAsync: (buffer) => {
-      return crypto.subtle.digest('SHA-256', buffer).then(hash => {
-        return hashToHex(hash)
-      })
-    }
-  },
-  {
-    hashingFunctionName: 'SHA-384',
-    hashingFunctionAsync: function (buffer) {
-      return crypto.subtle.digest('SHA-384', buffer).then(hash => {
-        return hashToHex(hash)
-      })
-    }
-  },
-  {
-    hashingFunctionName: 'SHA-512',
-    hashingFunctionAsync: function (buffer) {
-      return crypto.subtle.digest('SHA-512', buffer).then(hash => {
-        return hashToHex(hash)
-      })
-    }
-  },
-  {
-    hashingFunctionName: 'blake2b',
-    hashingFunctionAsync: function (buffer) {
-      return new Promise((resolve) => {
-        resolve(blake2bHex(buffer, null, 64))
-      })
-    }
-  },
-  {
-    hashingFunctionName: 'md5',
-    hashingFunctionAsync: function (buffer) {
-      return new Promise((resolve) => {
-        resolve(md5(buffer))
-      })
-    }
-  },
-]
-
 function HashInfos(props) {
   const {bufferToHash, filterText} = props
 
@@ -340,10 +288,12 @@ function HashInfos(props) {
         return true
       }
       return hashFunctionProp.hashingFunctionName.toLowerCase().includes(filterText.toLowerCase())
-    }).map(hashFunctionProp => {
+    }).map((hashFunctionProp, index) => {
       return <HashInfoBox
         key={hashFunctionProp.hashingFunctionName}
         bufferToHash={bufferToHash}
+        worker={hashWorker}
+        hashDefinitionIndex={index}
         {...hashFunctionProp} />
     })
   )
@@ -353,12 +303,25 @@ function bufferFromText(text) {
   return Buffer.from(new TextEncoder().encode(text))
 }
 
+let hasWorkerListener = false
+
 function App() {
   const [textToHash, setTextToHash] = React.useState("")
   const [bufferToHash, setBufferToHash] = React.useState(Buffer.alloc(0))
   const [textToHashHelperText, setTextToHashHelperText] = React.useState(formatBytes(0))
   const [filterText, setFilterText] = React.useState("")
   const [fileToHashHelperText, setFileToHashHelperText] = React.useState("")
+  const [jobQueueCount, setJobQueueCount] = React.useState(0)
+
+  if(!hasWorkerListener) {
+    hasWorkerListener = true
+    hashWorker.addEventListener('message', (e) => {
+      const {jobQueueCount} = e.data
+      if(jobQueueCount !== undefined) {
+        setJobQueueCount(jobQueueCount)
+      }
+    })
+  }
 
   const handleTextChange = event => {
     const text = event.target.value
@@ -398,9 +361,6 @@ function App() {
         <h2>
           Or
         </h2>
-        <h2>
-          File Input
-        </h2>
         <Dropzone onDrop={(acceptedFiles) => {
           acceptedFiles.forEach((file) => {
             const reader = new FileReader()
@@ -411,10 +371,10 @@ function App() {
           })
         }}>
           {({getRootProps, getInputProps}) => (
-            <section style={{padding: 40, border: 'dashed gray'}}>
+            <section style={{border: 'dashed gray'}}>
               <div {...getRootProps()}>
                 <input {...getInputProps()} />
-                <p>Drag 'n' drop some files here, or click to select files</p>
+                <p style={{fontSize: 30, padding: 50, margin: 0}}>Drag 'n' drop a file here, or click to select a file</p>
               </div>
             </section>
           )}
@@ -422,6 +382,12 @@ function App() {
         <div>
           {fileToHashHelperText}
         </div>
+
+        <br />
+
+        <h2>
+          Hash job queue count: {jobQueueCount}
+        </h2>
 
         <HashInfos bufferToHash={bufferToHash}
                    filterText={filterText}/>
