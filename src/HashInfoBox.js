@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import TextField from '@material-ui/core/TextField'
+import {hashFunctionProps} from './HashFunctionDefinitions'
 
 function makeHashDurationText(duration, byteCount) {
   const hashDurationText = duration.toLocaleString(undefined, {
@@ -14,9 +15,14 @@ function makeHashDurationText(duration, byteCount) {
 }
 
 export function HashInfoBox(props) {
-  const {bufferToHash, hashingFunctionAsync, hashingFunctionName} = props
+  const {bufferToHash, hashingFunctionName, worker, hashDefinitionIndex} = props
+  const hashingFunctionAsync = hashFunctionProps[hashDefinitionIndex].hashingFunctionAsync
 
   const [hashText, setHashText] = React.useState("")
+
+  const [willHashBuffer, setWillHashBuffer] = React.useState("")
+  const [didHashBuffer, setDidHashBuffer] = React.useState("")
+
   const [bufferThatWasHashed, setBufferThatWasHashed] = React.useState(null)
   const [helperText, setHelperText] = React.useState("")
 
@@ -25,15 +31,43 @@ export function HashInfoBox(props) {
   if(bufferThatWasHashed === null
   || bufferThatWasHashed.length !== bufferToHash.length) {
     setBufferThatWasHashed(bufferToHash)
+    setWillHashBuffer(bufferToHash)
     const hashingStartDate = performance.now()
-    hashingFunctionAsync(bufferToHash).then((hash) => {
+    worker.postMessage({
+      // hashFunction: hashingFunctionAsync,
+      // hashDefinitionIndex,
+      bufferToHash,
+      hashingFunctionName
+    })
+    worker.onmessage = (e => {
+      console.log('Worker: Message received from main script');
+      const workerData = e.data
+      if(workerData.hashingFunctionName !== hashingFunctionName) {
+        return
+      }
+      if(!workerData.bufferToHash.equals(bufferToHash)) {
+        return
+      }
+
       const hashingEndDate = performance.now()
       const hashDuration = hashingEndDate - hashingStartDate
       const hashDurationText = makeHashDurationText(hashDuration, bufferToHash.length)
-      setHashText(hash)
+      setHashText(workerData.hash)
+      setDidHashBuffer(bufferToHash)
       setHelperText(hashDurationText)
-      console.log(`${hashingFunctionName}: ${hash}`)
+      // hashFunction().then((hash) => {
+      //   postMessage({hash, bufferToHash, hashingFunctionName})
+      // })
     })
+    // hashingFunctionAsync(bufferToHash).then((hash) => {
+    //   const hashingEndDate = performance.now()
+    //   const hashDuration = hashingEndDate - hashingStartDate
+    //   const hashDurationText = makeHashDurationText(hashDuration, bufferToHash.length)
+    //   setHashText(hash)
+    //   setDidHashBuffer(bufferToHash)
+    //   setHelperText(hashDurationText)
+    //   console.log(`${hashingFunctionName}: ${hash}`)
+    // })
   }
 
   return (
