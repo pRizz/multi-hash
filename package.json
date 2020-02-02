@@ -10,12 +10,15 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "blakejs": "^1.1.0",
+    "gh-pages": "^2.2.0",
     "md5": "^2.2.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-scripts": "3.3.1"
   },
   "scripts": {
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages --dist build --branch master --dest docs",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
