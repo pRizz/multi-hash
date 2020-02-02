@@ -22,6 +22,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import {HashInfoBox} from './HashInfoBox'
 import {blake2bHex} from 'blakejs'
+import md5 from 'md5'
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -199,28 +200,6 @@ function PrimarySearchAppBar(props) {
             />
           </div>
           <div className={classes.grow} />
-          <div className={classes.sectionDesktop}>
-            <IconButton aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <MailIcon />
-              </Badge>
-            </IconButton>
-            <IconButton aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={17} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
-          </div>
           <div className={classes.sectionMobile}>
             <IconButton
               aria-label="show more"
@@ -336,9 +315,15 @@ const hashFunctionProps = [
     hashingFunctionName: 'blake2b',
     hashingFunctionAsync: function(buffer) {
       return new Promise((resolve) => {
-        const blake2b512Bit = blake2bHex(buffer, null, 64)
-        // blake2b512Bit.update(buffer)
-        resolve(blake2b512Bit)
+        resolve(blake2bHex(buffer, null, 64))
+      })
+    }
+  },
+  {
+    hashingFunctionName: 'md5',
+    hashingFunctionAsync: function(buffer) {
+      return new Promise((resolve) => {
+        resolve(md5(buffer))
       })
     }
   },
