@@ -15,6 +15,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
+import FilterListIcon from '@material-ui/icons/FilterList';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
@@ -84,10 +85,12 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function PrimarySearchAppBar() {
-  const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+function PrimarySearchAppBar(props) {
+  const {onFilterValueChange} = props
+
+  const classes = useStyles()
+  const [anchorEl, setAnchorEl] = React.useState(null)
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -179,19 +182,20 @@ function PrimarySearchAppBar() {
             <MenuIcon />
           </IconButton>
           <Typography className={classes.title} variant="h6" noWrap>
-            Material-UI
+            Multi Hash
           </Typography>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
-              <SearchIcon />
+              <FilterListIcon />
             </div>
             <InputBase
-              placeholder="Search…"
+              placeholder="Filter (sha, blake, etc.)"
               classes={{
                 root: classes.inputRoot,
                 input: classes.inputInput,
               }}
-              inputProps={{ 'aria-label': 'search' }}
+              inputProps={{ 'aria-label': 'filter-list' }}
+              onChange={event => {onFilterValueChange(event.target.value)}}
             />
           </div>
           <div className={classes.grow} />
@@ -340,25 +344,37 @@ const hashFunctionProps = [
   },
 ]
 
-function hashInfos(textToHash) {
-  return hashFunctionProps.map(hashFunctionProp => {
-    return HashInfoBox({textOrValueToHash: textToHash, ...hashFunctionProp})
+function hashInfos(textToHash, filterText) {
+  return hashFunctionProps.filter((hashFunctionProp) => {
+    if(!filterText) {
+      return true
+    }
+    return hashFunctionProp.hashingFunctionName.toLowerCase().includes(filterText.toLowerCase())
+  }).map(hashFunctionProp => {
+    return <HashInfoBox
+      key={hashFunctionProp.hashingFunctionName}
+      textOrValueToHash={textToHash}
+      {...hashFunctionProp} />
   })
 }
 
 function App() {
   const [textToHash, setTextToHash] = React.useState("")
   const [textToHashHelperText, setTextToHashHelperText] = React.useState(formatBytes(0))
+  const [filterText, setFilterText] = React.useState("")
   const handleTextChange = event => {
     setTextToHash(event.target.value)
     setTextToHashHelperText(formatBytes(byteLength(event.target.value)))
+  }
+  const handleFilterValueChange = (filterText) => {
+    setFilterText(filterText)
   }
 
   return (
     <div className="App">
       <CssBaseline />
-      <PrimarySearchAppBar />
-      <Container maxWidth="lg">
+      <PrimarySearchAppBar onFilterValueChange={handleFilterValueChange} />
+      <Container maxWidth="md">
         <br/>
         <TextField
           id="outlined-multiline-static"
@@ -377,7 +393,7 @@ function App() {
         <h2>
           File Input
         </h2>
-        {hashInfos(textToHash)}
+        {hashInfos(textToHash, filterText)}
       </Container>
     </div>
   );
