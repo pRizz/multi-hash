@@ -1,6 +1,7 @@
 # multi-hash
 Display multiple hashes for an input
 
+View webapp at [Multi Hash](https://prizz.github.io/multi-hash/)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
