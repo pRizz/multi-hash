@@ -4,7 +4,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container'
 import TextField from '@material-ui/core/TextField'
 
-import { fade, makeStyles } from '@material-ui/core/styles';
+import {fade, makeStyles} from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -14,7 +14,6 @@ import Badge from '@material-ui/core/Badge';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import MenuIcon from '@material-ui/icons/Menu';
-import SearchIcon from '@material-ui/icons/Search';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
@@ -23,6 +22,7 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 import {HashInfoBox} from './HashInfoBox'
 import {blake2bHex} from 'blakejs'
 import md5 from 'md5'
+import Dropzone from 'react-dropzone'
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -117,10 +117,10 @@ function PrimarySearchAppBar(props) {
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      anchorOrigin={{vertical: 'top', horizontal: 'right'}}
       id={menuId}
       keepMounted
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      transformOrigin={{vertical: 'top', horizontal: 'right'}}
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
@@ -133,17 +133,17 @@ function PrimarySearchAppBar(props) {
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      anchorOrigin={{vertical: 'top', horizontal: 'right'}}
       id={mobileMenuId}
       keepMounted
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      transformOrigin={{vertical: 'top', horizontal: 'right'}}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
         <IconButton aria-label="show 4 new mails" color="inherit">
           <Badge badgeContent={4} color="secondary">
-            <MailIcon />
+            <MailIcon/>
           </Badge>
         </IconButton>
         <p>Messages</p>
@@ -151,7 +151,7 @@ function PrimarySearchAppBar(props) {
       <MenuItem>
         <IconButton aria-label="show 11 new notifications" color="inherit">
           <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon />
+            <NotificationsIcon/>
           </Badge>
         </IconButton>
         <p>Notifications</p>
@@ -163,7 +163,7 @@ function PrimarySearchAppBar(props) {
           aria-haspopup="true"
           color="inherit"
         >
-          <AccountCircle />
+          <AccountCircle/>
         </IconButton>
         <p>Profile</p>
       </MenuItem>
@@ -180,14 +180,14 @@ function PrimarySearchAppBar(props) {
             color="inherit"
             aria-label="open drawer"
           >
-            <MenuIcon />
+            <MenuIcon/>
           </IconButton>
           <Typography className={classes.title} variant="h6" noWrap>
             Multi Hash
           </Typography>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
-              <FilterListIcon />
+              <FilterListIcon/>
             </div>
             <InputBase
               placeholder="Filter (sha, blake, etc.)"
@@ -195,11 +195,13 @@ function PrimarySearchAppBar(props) {
                 root: classes.inputRoot,
                 input: classes.inputInput,
               }}
-              inputProps={{ 'aria-label': 'filter-list' }}
-              onChange={event => {onFilterValueChange(event.target.value)}}
+              inputProps={{'aria-label': 'filter-list'}}
+              onChange={event => {
+                onFilterValueChange(event.target.value)
+              }}
             />
           </div>
-          <div className={classes.grow} />
+          <div className={classes.grow}/>
           <div className={classes.sectionMobile}>
             <IconButton
               aria-label="show more"
@@ -208,7 +210,7 @@ function PrimarySearchAppBar(props) {
               onClick={handleMobileMenuOpen}
               color="inherit"
             >
-              <MoreIcon />
+              <MoreIcon/>
             </IconButton>
           </div>
         </Toolbar>
@@ -240,8 +242,8 @@ const byteFormatterList = [
 // https://en.wikipedia.org/wiki/Orders_of_magnitude_(data)
 // converts the input (number of bytes) to a human readable number, like 500 bytes or 3.5 MB
 function formatBytes(numberOfBytes) {
-  for(const byteFormat of byteFormatterList) {
-    if(numberOfBytes >= byteFormat.minValue) {
+  for (const byteFormat of byteFormatterList) {
+    if (numberOfBytes >= byteFormat.minValue) {
       return `${(numberOfBytes / byteFormat.minValue).toLocaleString(undefined, {
         maximumFractionDigits: 3
       })} ${byteFormat.prefix}B`
@@ -255,7 +257,7 @@ function hashToHex(buffer) {
   const hexCodes = []
   const view = new DataView(buffer)
 
-  for(let i = 0; i < view.byteLength; i += 4) {
+  for (let i = 0; i < view.byteLength; i += 4) {
     const value = view.getUint32(i)
     const stringValue = value.toString(16)
     const padding = '00000000'
@@ -273,7 +275,7 @@ function byteLength(str) {
   for (let i = str.length - 1; i >= 0; i--) {
     const code = str.charCodeAt(i)
     if (code > 0x7f && code <= 0x7ff) s++
-    else if (code > 0x7ff && code <= 0xffff) s+=2
+    else if (code > 0x7ff && code <= 0xffff) s += 2
   }
   return s;
 }
@@ -297,7 +299,7 @@ const hashFunctionProps = [
   },
   {
     hashingFunctionName: 'SHA-384',
-    hashingFunctionAsync: function(buffer) {
+    hashingFunctionAsync: function (buffer) {
       return crypto.subtle.digest('SHA-384', buffer).then(hash => {
         return hashToHex(hash)
       })
@@ -305,7 +307,7 @@ const hashFunctionProps = [
   },
   {
     hashingFunctionName: 'SHA-512',
-    hashingFunctionAsync: function(buffer) {
+    hashingFunctionAsync: function (buffer) {
       return crypto.subtle.digest('SHA-512', buffer).then(hash => {
         return hashToHex(hash)
       })
@@ -313,7 +315,7 @@ const hashFunctionProps = [
   },
   {
     hashingFunctionName: 'blake2b',
-    hashingFunctionAsync: function(buffer) {
+    hashingFunctionAsync: function (buffer) {
       return new Promise((resolve) => {
         resolve(blake2bHex(buffer, null, 64))
       })
@@ -321,7 +323,7 @@ const hashFunctionProps = [
   },
   {
     hashingFunctionName: 'md5',
-    hashingFunctionAsync: function(buffer) {
+    hashingFunctionAsync: function (buffer) {
       return new Promise((resolve) => {
         resolve(md5(buffer))
       })
@@ -329,36 +331,57 @@ const hashFunctionProps = [
   },
 ]
 
-function hashInfos(textToHash, filterText) {
-  return hashFunctionProps.filter((hashFunctionProp) => {
-    if(!filterText) {
-      return true
-    }
-    return hashFunctionProp.hashingFunctionName.toLowerCase().includes(filterText.toLowerCase())
-  }).map(hashFunctionProp => {
-    return <HashInfoBox
-      key={hashFunctionProp.hashingFunctionName}
-      textOrValueToHash={textToHash}
-      {...hashFunctionProp} />
-  })
+function HashInfos(props) {
+  const {bufferToHash, filterText} = props
+
+  return (
+    hashFunctionProps.filter((hashFunctionProp) => {
+      if (!filterText) {
+        return true
+      }
+      return hashFunctionProp.hashingFunctionName.toLowerCase().includes(filterText.toLowerCase())
+    }).map(hashFunctionProp => {
+      return <HashInfoBox
+        key={hashFunctionProp.hashingFunctionName}
+        bufferToHash={bufferToHash}
+        {...hashFunctionProp} />
+    })
+  )
+}
+
+function bufferFromText(text) {
+  return Buffer.from(new TextEncoder().encode(text))
 }
 
 function App() {
   const [textToHash, setTextToHash] = React.useState("")
+  const [bufferToHash, setBufferToHash] = React.useState(Buffer.alloc(0))
   const [textToHashHelperText, setTextToHashHelperText] = React.useState(formatBytes(0))
   const [filterText, setFilterText] = React.useState("")
+  const [fileToHashHelperText, setFileToHashHelperText] = React.useState("")
+
   const handleTextChange = event => {
-    setTextToHash(event.target.value)
-    setTextToHashHelperText(formatBytes(byteLength(event.target.value)))
+    const text = event.target.value
+    setTextToHash(text)
+    setBufferToHash(bufferFromText(text))
+    setTextToHashHelperText(formatBytes(byteLength(text)))
   }
   const handleFilterValueChange = (filterText) => {
     setFilterText(filterText)
   }
 
+  const handleFileChange = fileBuffer => {
+    console.log('handleFileChange')
+    console.log(fileBuffer)
+    console.log(fileBuffer.byteLength)
+    setBufferToHash(Buffer.from(fileBuffer))
+    setFileToHashHelperText(formatBytes(fileBuffer.byteLength))
+  }
+
   return (
     <div className="App">
-      <CssBaseline />
-      <PrimarySearchAppBar onFilterValueChange={handleFilterValueChange} />
+      <CssBaseline/>
+      <PrimarySearchAppBar onFilterValueChange={handleFilterValueChange}/>
       <Container maxWidth="md">
         <br/>
         <TextField
@@ -378,7 +401,30 @@ function App() {
         <h2>
           File Input
         </h2>
-        {hashInfos(textToHash, filterText)}
+        <Dropzone onDrop={(acceptedFiles) => {
+          acceptedFiles.forEach((file) => {
+            const reader = new FileReader()
+            reader.onload = () => {
+              handleFileChange(reader.result)
+            }
+            reader.readAsArrayBuffer(file)
+          })
+        }}>
+          {({getRootProps, getInputProps}) => (
+            <section style={{padding: 40, border: 'dashed gray'}}>
+              <div {...getRootProps()}>
+                <input {...getInputProps()} />
+                <p>Drag 'n' drop some files here, or click to select files</p>
+              </div>
+            </section>
+          )}
+        </Dropzone>
+        <div>
+          {fileToHashHelperText}
+        </div>
+
+        <HashInfos bufferToHash={bufferToHash}
+                   filterText={filterText}/>
       </Container>
     </div>
   );

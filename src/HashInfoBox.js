@@ -2,12 +2,6 @@ import React from 'react';
 import './App.css';
 import TextField from '@material-ui/core/TextField'
 
-function bufferFromTextOrBuffer(textOrBuffer) {
-  const buffer = new TextEncoder('utf-8').encode(textOrBuffer)
-  // FIXME
-  return buffer
-}
-
 function makeHashDurationText(duration, byteCount) {
   const hashDurationText = duration.toLocaleString(undefined, {
     maximumFractionDigits: 3
@@ -20,21 +14,25 @@ function makeHashDurationText(duration, byteCount) {
 }
 
 export function HashInfoBox(props) {
-  const {textOrValueToHash, hashingFunctionAsync, hashingFunctionName} = props
+  const {bufferToHash, hashingFunctionAsync, hashingFunctionName} = props
 
   const [hashText, setHashText] = React.useState("")
-  const [textThatWasHashed, setTextThatWasHashed] = React.useState("")
+  const [bufferThatWasHashed, setBufferThatWasHashed] = React.useState(null)
   const [helperText, setHelperText] = React.useState("")
-  const bufferToHash = bufferFromTextOrBuffer(textOrValueToHash)
 
-  if(textOrValueToHash !== textThatWasHashed) {
-    setTextThatWasHashed(textOrValueToHash)
+  console.log('bufferToHash')
+  console.log(bufferToHash)
+  if(bufferThatWasHashed === null
+  || bufferThatWasHashed.length !== bufferToHash.length) {
+    setBufferThatWasHashed(bufferToHash)
     const hashingStartDate = performance.now()
     hashingFunctionAsync(bufferToHash).then((hash) => {
       const hashingEndDate = performance.now()
       const hashDuration = hashingEndDate - hashingStartDate
-      setHelperText(makeHashDurationText(hashDuration, bufferToHash.length))
+      const hashDurationText = makeHashDurationText(hashDuration, bufferToHash.length)
       setHashText(hash)
+      setHelperText(hashDurationText)
+      console.log(`${hashingFunctionName}: ${hash}`)
     })
   }
 
