@@ -1,8 +1,6 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container'
 import TextField from '@material-ui/core/TextField'
 
@@ -21,6 +19,7 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
+import {HashInfoBox} from './HashInfoBox'
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -295,18 +294,37 @@ function byteLength(str) {
   return s;
 }
 
+const hashFunctionProps = [
+  {
+    hashingFunctionName: "SHA-1",
+    hashingFunctionAsync: (bufferToHash) => {
+      return crypto.subtle.digest('SHA-1', bufferToHash).then(hash => {
+        return hashToHex(hash)
+      })
+    }
+  }
+]
+
+function hashInfos(textToHash) {
+  return hashFunctionProps.map(hashFunctionProp => {
+    return HashInfoBox({textOrValueToHash: textToHash, ...hashFunctionProp})
+  })
+}
+
 function App() {
   const [textToHash, setTextToHash] = React.useState("")
-  const [textToHashHelperText, setTextToHashHelperText] = React.useState("")
+  const [textToHashHelperText, setTextToHashHelperText] = React.useState(formatBytes(0))
   const handleTextChange = event => {
     setTextToHash(event.target.value)
     setTextToHashHelperText(formatBytes(byteLength(event.target.value)))
   }
+
   return (
     <div className="App">
       <CssBaseline />
       <PrimarySearchAppBar />
       <Container maxWidth="lg">
+        <br/>
         <TextField
           id="outlined-multiline-static"
           label="Text To Hash"
@@ -316,27 +334,16 @@ function App() {
           onChange={handleTextChange}
           variant="outlined"
           helperText={textToHashHelperText}
+          fullWidth
         />
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and ok save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          <Button variant="contained" color="primary">
-            Hello World
-          </Button>
-        </header>
-
+        <h2>
+          Or
+        </h2>
+        <h2>
+          File Input
+        </h2>
+        {hashInfos(textToHash)}
       </Container>
-
     </div>
   );
 }
