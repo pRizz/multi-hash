@@ -18,7 +18,7 @@
   },
   "scripts": {
     "predeploy": "yarn run build",
-    "deploy": "gh-pages --dist build --branch master --dest docs --no-push",
+    "deploy": "rm -rf docs ; mv build docs",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
