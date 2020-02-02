@@ -38,7 +38,6 @@ export function HashInfoBox(props) {
     if(!hasWorkerListener) {
       setHasWorkerListener(true)
       worker.addEventListener('message', e => {
-        console.log('Worker: Message received from main script');
         const workerData = e.data
 
         if(workerData.hashingFunctionName !== hashingFunctionName) {
