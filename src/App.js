@@ -22,7 +22,9 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 import {HashInfoBox} from './HashInfoBox'
 import Dropzone from 'react-dropzone'
 import {hashFunctionProps} from './HashFunctionDefinitions'
-const hashWorker = new Worker('./HashWorker.js')
+import HashWorker from './HashWorker.worker'
+
+const hashWorker = new HashWorker() // FIXME: put in component mounted?
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -288,12 +290,25 @@ function bufferFromText(text) {
   return Buffer.from(new TextEncoder().encode(text))
 }
 
+let hasWorkerListener = false
+
 function App() {
   const [textToHash, setTextToHash] = React.useState("")
   const [bufferToHash, setBufferToHash] = React.useState(Buffer.alloc(0))
   const [textToHashHelperText, setTextToHashHelperText] = React.useState(formatBytes(0))
   const [filterText, setFilterText] = React.useState("")
   const [fileToHashHelperText, setFileToHashHelperText] = React.useState("")
+  const [jobQueueCount, setJobQueueCount] = React.useState(0)
+
+  if(!hasWorkerListener) {
+    hasWorkerListener = true
+    hashWorker.addEventListener('message', (e) => {
+      const {jobQueueCount} = e.data
+      if(jobQueueCount !== undefined) {
+        setJobQueueCount(jobQueueCount)
+      }
+    })
+  }
 
   const handleTextChange = event => {
     const text = event.target.value
@@ -354,6 +369,12 @@ function App() {
         <div>
           {fileToHashHelperText}
         </div>
+
+        <br />
+
+        <h2>
+          Hash job queue count: {jobQueueCount}
+        </h2>
 
         <HashInfos bufferToHash={bufferToHash}
                    filterText={filterText}/>
