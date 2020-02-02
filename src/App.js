@@ -20,6 +20,7 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import {HashInfoBox} from './HashInfoBox'
+import {blake2bHex} from 'blakejs'
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -302,7 +303,41 @@ const hashFunctionProps = [
         return hashToHex(hash)
       })
     }
-  }
+  },
+  {
+    hashingFunctionName: 'SHA-256',
+    hashingFunctionAsync: (buffer) => {
+      return crypto.subtle.digest('SHA-256', buffer).then(hash => {
+        return hashToHex(hash)
+      })
+    }
+  },
+  {
+    hashingFunctionName: 'SHA-384',
+    hashingFunctionAsync: function(buffer) {
+      return crypto.subtle.digest('SHA-384', buffer).then(hash => {
+        return hashToHex(hash)
+      })
+    }
+  },
+  {
+    hashingFunctionName: 'SHA-512',
+    hashingFunctionAsync: function(buffer) {
+      return crypto.subtle.digest('SHA-512', buffer).then(hash => {
+        return hashToHex(hash)
+      })
+    }
+  },
+  {
+    hashingFunctionName: 'blake2b',
+    hashingFunctionAsync: function(buffer) {
+      return new Promise((resolve) => {
+        const blake2b512Bit = blake2bHex(buffer, null, 64)
+        // blake2b512Bit.update(buffer)
+        resolve(blake2b512Bit)
+      })
+    }
+  },
 ]
 
 function hashInfos(textToHash) {

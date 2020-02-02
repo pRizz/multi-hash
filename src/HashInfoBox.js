@@ -39,7 +39,7 @@ export function HashInfoBox(props) {
   }
 
   return (
-    <div key={hashingFunctionName}>
+    <div key={hashingFunctionName} style={{marginTop: '2em', marginBottom: '2em'}}>
       <TextField
         id="outlined-multiline-static"
         label={hashingFunctionName}
