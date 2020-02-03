@@ -1,7 +1,7 @@
 {
   "name": "multi-hash",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "bin": "bin/www.js",
   "homepage": "https://prizz.github.io/multi-hash/",
   "dependencies": {
     "@babel/core": "7.8.4",
