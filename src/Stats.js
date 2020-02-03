@@ -1,8 +1,9 @@
 import React from 'react'
 import {
-  BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts'
-import Container from '@material-ui/core/Container'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import Typography from '@material-ui/core/Typography'
 
 const chartConfigs = [
   {
@@ -39,13 +40,19 @@ function chartPropsFromStatsProps(statsProps) {
 }
 
 function ChartComponentsFromChartProps(props) {
-  const {chartProps} = props
+  const {chartProps, isLoading} = props
   return chartProps.map(chartProp => {
     return (
-      <section key={chartProp.name} style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-        <h2>
+      <div key={chartProp.name} style={{display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', margin: 12}}>
+        {isLoading && <div style={{position: 'absolute', justifyContent: 'center', width: '100%', height: '100%', backgroundColor: "rgba(128, 128, 128, 0.1)", zIndex: 10}}>
+          <CircularProgress
+            color={'secondary'}
+            style={{alignSelf: 'center', alignItems: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', flexGrow: 1, margin: 'auto', height: '100%'}} />
+        </div>}
+
+        <Typography variant="h4">
           {chartProp.name}
-        </h2>
+        </Typography>
         <BarChart
           width={500}
           height={300}
@@ -61,7 +68,7 @@ function ChartComponentsFromChartProps(props) {
           <Legend/>
           <Bar dataKey={chartProp.dataKey} fill="#8884d8"/>
         </BarChart>
-      </section>
+      </div>
     )
   })
 }
@@ -71,24 +78,24 @@ function ChartComponentsFromChartProps(props) {
  *   data: [
  *     {
  *       hashingFunctionName: 'sha-1',
-*         "duration (s)": 12,
-*         "MB/s": 230,
-*         etc.
+ *         "duration (s)": 12,
+ *         "MB/s": 230,
+ *         etc.
  *     }, ...
  *   ]
  * }
  * */
 export default function Stats(props) {
-  const {data} = props
+  const {data, statsDescription, isLoading} = props
   const chartProps = chartPropsFromStatsProps(data)
 
   return (
     <section>
-      <h2>
-        Stats
-      </h2>
+      <Typography variant="h2">
+        Stats for hashing {statsDescription || 'null value'}
+      </Typography>
 
-      <ChartComponentsFromChartProps chartProps={chartProps} />
+      <ChartComponentsFromChartProps chartProps={chartProps} isLoading={isLoading}/>
     </section>
   )
 }

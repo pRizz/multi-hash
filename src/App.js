@@ -26,6 +26,15 @@ import HashWorker from './HashWorker.worker'
 import Button from '@material-ui/core/Button'
 import GitHubIcon from '@material-ui/icons/GitHub';
 import Stats from './Stats'
+import {CircularProgress} from '@material-ui/core'
+import Chip from '@material-ui/core/Chip'
+import DescriptionIcon from '@material-ui/icons/Description'
+import Snackbar from '@material-ui/core/Snackbar'
+import MuiAlert from '@material-ui/lab/Alert';
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />
+}
 
 const hashWorker = new HashWorker() // FIXME: put in component mounted?
 
@@ -228,6 +237,16 @@ function PrimarySearchAppBar(props) {
           >
             Source Code
           </Button>
+          <div style={{width: 12}}></div>
+          <Button
+            href="https://www.prizzventuresllc.com/"
+            target="_blank"
+            rel="noopener"
+            variant="contained"
+            className={classes.button}
+          >
+            P Rizz Ventures
+          </Button>
         </Toolbar>
       </AppBar>
       {renderMobileMenu}
@@ -279,6 +298,64 @@ function byteLength(str) {
   return s;
 }
 
+const randomDataModels = [
+  {
+    name: "10 KB",
+    byteCount: 1000 * 10
+  },
+  {
+    name: "100 KB",
+    byteCount: 100 * 1000
+  },
+  {
+    name: "1 MB",
+    byteCount: 1000 * 1000
+  },
+  {
+    name: "10 MB",
+    byteCount: 10 * 1000 * 1000
+  },
+  {
+    name: "100 MB",
+    byteCount: 100 * 1000 * 1000
+  },
+  {
+    name: "500 MB (slow)",
+    byteCount: 500 * 1000 * 1000
+  },
+  {
+    name: "1 GB (slow)",
+    byteCount: 1000 * 1000 * 1000
+  }
+]
+
+function generateRandomData(byteCount) {
+  return Buffer.alloc(byteCount)
+}
+
+function HashRandomDataButtons(props) {
+  const {onDataToHash} = props
+
+  return (
+    <section style={{display: 'flex', justifyContent: 'center', flexWrap: 'wrap'}}>
+      {randomDataModels.map((randomDataModel) => {
+        return <Button
+          variant={'contained'}
+          color={'primary'}
+          key={randomDataModel.name}
+          style={{margin: 8}}
+          onClick={() => {
+            const bufferToHash = generateRandomData(randomDataModel.byteCount)
+            onDataToHash(bufferToHash)
+          }}
+        >
+          {randomDataModel.name}
+        </Button>
+      })}
+    </section>
+  )
+}
+
 function HashInfos(props) {
   const {bufferToHash, filterText, onHashInfoData} = props
 
@@ -306,6 +383,14 @@ function bufferFromText(text) {
 
 let hasWorkerListener = false
 
+function OrBreak() {
+  return (
+    <Typography variant={'h5'} style={{margin: 20}}>
+      Or
+    </Typography>
+  )
+}
+
 function App() {
   const [textToHash, setTextToHash] = React.useState("")
   const [bufferToHash, setBufferToHash] = React.useState(Buffer.alloc(0))
@@ -314,12 +399,15 @@ function App() {
   const [fileToHashHelperText, setFileToHashHelperText] = React.useState("")
   const [jobQueueCount, setJobQueueCount] = React.useState(0)
   const [statsData, setStatsData] = React.useState([])
+  const [statsDescription, setStatsDescription] = React.useState("")
+  const [hashDoneSnackbarOpen, setHashDoneSnackbarOpen] = React.useState(false)
 
   if (!hasWorkerListener) {
     hasWorkerListener = true
     hashWorker.addEventListener('message', (e) => {
       const {jobQueueCount} = e.data
       if (jobQueueCount !== undefined) {
+        setHashDoneSnackbarOpen(jobQueueCount === 0)
         setJobQueueCount(jobQueueCount)
       }
     })
@@ -329,18 +417,22 @@ function App() {
     const text = event.target.value
     setTextToHash(text)
     setBufferToHash(bufferFromText(text))
-    setTextToHashHelperText(formatBytes(byteLength(text)))
+    const byteCountFormatted = formatBytes(byteLength(text))
+    setTextToHashHelperText(byteCountFormatted)
+    setStatsDescription(`${formatBytes(byteLength(text))} of text`)
   }
   const handleFilterValueChange = (filterText) => {
     setFilterText(filterText)
   }
 
-  const handleFileChange = fileBuffer => {
+  const handleFileChange = fileInfo => {
+    const {fileBuffer, fileName} = fileInfo
     console.log('handleFileChange')
     console.log(fileBuffer)
     console.log(fileBuffer.byteLength)
     setBufferToHash(Buffer.from(fileBuffer))
-    setFileToHashHelperText(formatBytes(fileBuffer.byteLength))
+    setFileToHashHelperText(`${fileName}: ${formatBytes(fileBuffer.byteLength)}`)
+    setStatsDescription(`${formatBytes(fileBuffer.byteLength)} of a file`)
   }
 
   /**
@@ -355,12 +447,23 @@ function App() {
     const currentHashInfoRow = statsData.findIndex((value, index, obj) => {
       return value.hashingFunctionName === hashInfoData.hashingFunctionName
     })
-    if(currentHashInfoRow < 0) {
+    if (currentHashInfoRow < 0) {
       statsData.push(hashInfoData)
       return
     }
     statsData.splice(currentHashInfoRow, 1, hashInfoData)
     setStatsData(statsData)
+  }
+
+  const handleRandomDataToHash = (dataBuffer) => {
+    setBufferToHash(dataBuffer)
+    setStatsDescription(`${formatBytes(dataBuffer.byteLength)} of random data`)
+  }
+
+  const isLoading = jobQueueCount > 0
+
+  const handleHashDoneSnackarClose = () => {
+    setHashDoneSnackbarOpen(false)
   }
 
   return (
@@ -380,45 +483,55 @@ function App() {
           helperText={textToHashHelperText}
           fullWidth
         />
-        <h2>
-          Or
-        </h2>
+
+        <OrBreak/>
+
         <Dropzone onDrop={(acceptedFiles) => {
           acceptedFiles.forEach((file) => {
             const reader = new FileReader()
             reader.onload = () => {
-              handleFileChange(reader.result)
+              handleFileChange({
+                fileBuffer: reader.result,
+                fileName: file.name
+              })
             }
             reader.readAsArrayBuffer(file)
           })
         }}>
           {({getRootProps, getInputProps}) => (
-            <section style={{border: 'dashed gray'}}>
+            <section style={{border: 'dashed gray', borderColor: (fileToHashHelperText ? 'blue' : 'gray')}}>
               <div {...getRootProps()}>
                 <input {...getInputProps()} />
-                <p style={{fontSize: 30, padding: 50, margin: 0}}>Drag 'n' drop a file here, or click to select a
+                <p style={{fontSize: 30, paddingTop: 50, margin: 0}}>Drag 'n' drop a file here, or click to select a
                   file</p>
+                <p style={{fontSize: 30, margin: 4}}>(hashing is done locally)</p>
+                {fileToHashHelperText && <Chip
+                  icon={<DescriptionIcon></DescriptionIcon>}
+                  label={fileToHashHelperText}
+                  clickable
+                  color="primary"
+                  style={{marginTop: 20}}
+                />}
+                <div style={{marginBottom: 50}}></div>
               </div>
             </section>
           )}
         </Dropzone>
-        <div>
-          {fileToHashHelperText}
-        </div>
 
-        <h2>
-          Or
-        </h2>
+        <OrBreak/>
 
-        <h3>
+        <Typography variant={'h5'}>
           Random Data
-        </h3>
+        </Typography>
 
-        <br/>
+        <HashRandomDataButtons onDataToHash={handleRandomDataToHash}/>
 
-        <h2>
+        <div style={{height: '3em'}}/>
+
+        <Typography variant={'h3'}>
           Hash job queue count: {jobQueueCount}
-        </h2>
+        </Typography>
+        {isLoading && <CircularProgress/>}
 
         <HashInfos bufferToHash={bufferToHash}
                    filterText={filterText}
@@ -426,11 +539,21 @@ function App() {
         />
 
         <Stats
+          statsDescription={statsDescription}
           data={statsData}
+          isLoading={isLoading}
         />
 
+        <Snackbar open={hashDoneSnackbarOpen} autoHideDuration={3000} onClose={handleHashDoneSnackarClose}>
+          <Alert onClose={handleHashDoneSnackarClose} severity="success">
+            Done hashing!
+          </Alert>
+        </Snackbar>
 
       </Container>
+      <div>
+        Footer TODO
+      </div>
     </div>
   );
 }

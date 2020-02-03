@@ -50,20 +50,20 @@ export const hashFunctionProps = [
       })
     }
   },
-  {
-    hashingFunctionName: 'blake2b',
-    hashingFunctionAsync: function (buffer) {
-      return new Promise((resolve) => {
-        resolve(blake2bHex(buffer, null, 64))
-      })
-    }
-  },
-  {
-    hashingFunctionName: 'md5',
-    hashingFunctionAsync: function (buffer) {
-      return new Promise((resolve) => {
-        resolve(md5(buffer))
-      })
-    }
-  },
+  // {
+  //   hashingFunctionName: 'blake2b',
+  //   hashingFunctionAsync: function (buffer) {
+  //     return new Promise((resolve) => {
+  //       resolve(blake2bHex(buffer, null, 64))
+  //     })
+  //   }
+  // },
+  // {
+  //   hashingFunctionName: 'md5',
+  //   hashingFunctionAsync: function (buffer) {
+  //     return new Promise((resolve) => {
+  //       resolve(md5(buffer))
+  //     })
+  //   }
+  // },
 ]
