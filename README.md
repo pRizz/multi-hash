@@ -1,9 +1,45 @@
-# multi-hash
+# Multi Hash
 Display multiple hashes for an input
 
 View webapp at [Multi Hash](https://prizz.github.io/multi-hash/)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+## Running locally from npx
+
+Simply call
+
+```bash
+npx multi-hash
+```
+
+## Running locally as a binary
+
+Install swagger editor as a global binary with either
+
+```bash
+npm i -g multi-hash
+```
+
+to install from npm. Or
+
+```bash
+npm i -g github:prizz/multi-hash
+```
+
+to install from GitHub.
+
+Then, once installed, simply call
+
+```bash
+multi-hash
+```
+
+from the command line.
+
+## Screenshot
+
+![Multi Hash Screenshot](public/multi-hash-screenshot.png)
 
 ## Available Scripts
 
