@@ -24,10 +24,9 @@ import Dropzone from 'react-dropzone'
 import {hashFunctionProps} from './HashFunctionDefinitions'
 import HashWorker from './HashWorker.worker'
 import Button from '@material-ui/core/Button'
-import Link from '@material-ui/core/Link'
 import GitHubIcon from '@material-ui/icons/GitHub';
 
-const hashWorker = new HashWorker() // FIXME: put in component mounted?
+const hashWorker =  new HashWorker() // FIXME: put in component mounted?
 
 const useStyles = makeStyles(theme => ({
   grow: {
