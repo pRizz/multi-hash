@@ -73,8 +73,6 @@
     "worker-loader": "^2.0.0"
   },
   "scripts": {
-    "predeploy": "yarn run build",
-    "deploy": "rm -rf docs ; mv build docs",
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js"

@@ -5,6 +5,12 @@ object-assign
 */
 
 /*!
+  Copyright (c) 2017 Jed Watson.
+  Licensed under the MIT License (MIT), see
+  http://jedwatson.github.io/classnames
+*/
+
+/*!
  * Determine if an object is a Buffer
  *
  * @author   Feross Aboukhadijeh <https://feross.org>
@@ -17,6 +23,8 @@ object-assign
  * @author   Feross Aboukhadijeh <http://feross.org>
  * @license  MIT
  */
+
+/*! decimal.js-light v2.5.0 https://github.com/MikeMcl/decimal.js-light/LICENCE */
 
 /**
  * A better abstraction over CSS.
