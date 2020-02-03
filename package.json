@@ -73,9 +73,9 @@
   "scripts": {
     "predeploy": "yarn run build",
     "deploy": "rm -rf docs ; mv build docs",
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "test": "react-app-rewired test"
+    "start": "node scripts/start.js",
+    "build": "node scripts/build.js",
+    "test": "node scripts/test.js"
   },
   "eslintConfig": {
     "extends": "react-app"
