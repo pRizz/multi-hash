@@ -10,7 +10,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 Simply call
 
 ```bash
-npx multi-hash
+npx multi-hash-webapp
 ```
 
 ## Running locally as a binary
@@ -18,7 +18,7 @@ npx multi-hash
 Install swagger editor as a global binary with either
 
 ```bash
-npm i -g multi-hash
+npm i -g multi-hash-webapp
 ```
 
 to install from npm. Or
@@ -32,7 +32,7 @@ to install from GitHub.
 Then, once installed, simply call
 
 ```bash
-multi-hash
+multi-hash-webapp
 ```
 
 from the command line.
