@@ -3,19 +3,39 @@ import './App.css';
 import TextField from '@material-ui/core/TextField'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
-function makeHashDurationText(duration, byteCount) {
-  const hashDurationText = duration.toLocaleString(undefined, {
+function metricsFromInfo(durationMS, byteCount) {
+  const nanoseconds = durationMS * 1000000
+  const nsPerByte = nanoseconds / byteCount
+  const megabytes = byteCount / 1000000
+  const seconds = durationMS / 1000
+  const MBperSecond = megabytes / seconds
+
+  return {
+    "duration (s)": seconds,
+    "MB/s": MBperSecond,
+    "ns/byte": nsPerByte
+  }
+}
+
+function textFromMetrics(metrics) {
+  const durationSeconds = metrics["duration (s)"]
+  const MBperSecond = metrics["MB/s"]
+  const nsPerByte = metrics["ns/byte"]
+
+  const hashDurationText = (durationSeconds * 1000).toLocaleString(undefined, {
     maximumFractionDigits: 3
   })
-  const nsPerByte = duration / byteCount * 1000000
   const nsPerByteText = nsPerByte.toLocaleString(undefined, {
     maximumFractionDigits: 3
   })
-  return `Took ${hashDurationText} ms; ${nsPerByteText} ns/byte`
+  const MBperSecondText = MBperSecond.toLocaleString(undefined, {
+    maximumFractionDigits: 3
+  })
+  return `Took ${hashDurationText} ms | ${nsPerByteText} ns/byte | ${MBperSecondText}MB/s`
 }
 
 export function HashInfoBox(props) {
-  const {bufferToHash, hashingFunctionName, worker, hashDefinitionIndex} = props
+  const {bufferToHash, hashingFunctionName, worker, hashDefinitionIndex, onHashInfoData} = props
 
   const [hashText, setHashText] = React.useState("")
   const [hasWorkerListener, setHasWorkerListener] = React.useState(false)
@@ -44,10 +64,16 @@ export function HashInfoBox(props) {
           return
         }
 
-        const hashDurationText = makeHashDurationText(workerData.hashDuration, workerData.bufferToHash.length)
+        const metrics = metricsFromInfo(workerData.hashDuration, workerData.bufferToHash.length)
+        const hashDurationText = textFromMetrics(metrics)
         setHashText(workerData.hash)
         setDidHashBuffer(workerData.bufferToHash)
         setHelperText(hashDurationText)
+
+        onHashInfoData({
+          hashingFunctionName,
+          ...metrics
+        })
       })
     }
   }

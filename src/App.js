@@ -25,8 +25,9 @@ import {hashFunctionProps} from './HashFunctionDefinitions'
 import HashWorker from './HashWorker.worker'
 import Button from '@material-ui/core/Button'
 import GitHubIcon from '@material-ui/icons/GitHub';
+import Stats from './Stats'
 
-const hashWorker =  new HashWorker() // FIXME: put in component mounted?
+const hashWorker = new HashWorker() // FIXME: put in component mounted?
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -223,7 +224,7 @@ function PrimarySearchAppBar(props) {
             rel="noopener"
             variant="contained"
             className={classes.button}
-            startIcon={<GitHubIcon />}
+            startIcon={<GitHubIcon/>}
           >
             Source Code
           </Button>
@@ -279,7 +280,7 @@ function byteLength(str) {
 }
 
 function HashInfos(props) {
-  const {bufferToHash, filterText} = props
+  const {bufferToHash, filterText, onHashInfoData} = props
 
   return (
     hashFunctionProps.filter((hashFunctionProp) => {
@@ -293,6 +294,7 @@ function HashInfos(props) {
         bufferToHash={bufferToHash}
         worker={hashWorker}
         hashDefinitionIndex={index}
+        onHashInfoData={onHashInfoData}
         {...hashFunctionProp} />
     })
   )
@@ -311,12 +313,13 @@ function App() {
   const [filterText, setFilterText] = React.useState("")
   const [fileToHashHelperText, setFileToHashHelperText] = React.useState("")
   const [jobQueueCount, setJobQueueCount] = React.useState(0)
+  const [statsData, setStatsData] = React.useState([])
 
-  if(!hasWorkerListener) {
+  if (!hasWorkerListener) {
     hasWorkerListener = true
     hashWorker.addEventListener('message', (e) => {
       const {jobQueueCount} = e.data
-      if(jobQueueCount !== undefined) {
+      if (jobQueueCount !== undefined) {
         setJobQueueCount(jobQueueCount)
       }
     })
@@ -338,6 +341,26 @@ function App() {
     console.log(fileBuffer.byteLength)
     setBufferToHash(Buffer.from(fileBuffer))
     setFileToHashHelperText(formatBytes(fileBuffer.byteLength))
+  }
+
+  /**
+   * hashInfoData: {
+   *   hashingFunctionName: "sha1",
+   *   "duration (s)": 12,
+   *   etc...
+   * }
+   */
+
+  const handleHashInfoData = (hashInfoData) => {
+    const currentHashInfoRow = statsData.findIndex((value, index, obj) => {
+      return value.hashingFunctionName === hashInfoData.hashingFunctionName
+    })
+    if(currentHashInfoRow < 0) {
+      statsData.push(hashInfoData)
+      return
+    }
+    statsData.splice(currentHashInfoRow, 1, hashInfoData)
+    setStatsData(statsData)
   }
 
   return (
@@ -373,7 +396,8 @@ function App() {
             <section style={{border: 'dashed gray'}}>
               <div {...getRootProps()}>
                 <input {...getInputProps()} />
-                <p style={{fontSize: 30, padding: 50, margin: 0}}>Drag 'n' drop a file here, or click to select a file</p>
+                <p style={{fontSize: 30, padding: 50, margin: 0}}>Drag 'n' drop a file here, or click to select a
+                  file</p>
               </div>
             </section>
           )}
@@ -382,14 +406,30 @@ function App() {
           {fileToHashHelperText}
         </div>
 
-        <br />
+        <h2>
+          Or
+        </h2>
+
+        <h3>
+          Random Data
+        </h3>
+
+        <br/>
 
         <h2>
           Hash job queue count: {jobQueueCount}
         </h2>
 
         <HashInfos bufferToHash={bufferToHash}
-                   filterText={filterText}/>
+                   filterText={filterText}
+                   onHashInfoData={handleHashInfoData}
+        />
+
+        <Stats
+          data={statsData}
+        />
+
+
       </Container>
     </div>
   );
