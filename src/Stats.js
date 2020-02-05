@@ -71,7 +71,7 @@ function ChartComponentsFromChartProps(props) {
             <Bar dataKey={chartProp.dataKey} fill="#8884d8"/>
           </BarChart>
         </Paper>
-        
+
       </div>
     )
   })
