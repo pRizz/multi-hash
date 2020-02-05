@@ -43,6 +43,28 @@ function dequeueJob() {
   executeJobAsync(currentJob)
 }
 
+function getRandomByte() {
+  return Math.floor(256 * Math.random())
+}
+
+function generateRandomData(byteCount) {
+  return Buffer.alloc(byteCount).map(getRandomByte)
+}
+
+function handleGetRandomData(opts) {
+  const {byteCount} = opts
+  postMessage({
+    type: 'onRandomData',
+    opts: {
+      byteCount,
+      buffer: generateRandomData(byteCount)
+    }
+  })
+}
+
 self.addEventListener('message', (e) => {
+  if(e.data.type === 'onGetRandomData') {
+    return handleGetRandomData(e.data.opts)
+  }
   pushJob(e.data)
 })

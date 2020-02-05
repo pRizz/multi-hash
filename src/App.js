@@ -10,15 +10,8 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
-import Badge from '@material-ui/core/Badge';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
 import MenuIcon from '@material-ui/icons/Menu';
 import FilterListIcon from '@material-ui/icons/FilterList';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import MailIcon from '@material-ui/icons/Mail';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import MoreIcon from '@material-ui/icons/MoreVert';
 import {HashInfoBox} from './HashInfoBox'
 import Dropzone from 'react-dropzone'
 import {hashFunctionProps} from './HashFunctionDefinitions'
@@ -26,11 +19,13 @@ import HashWorker from './HashWorker.worker'
 import Button from '@material-ui/core/Button'
 import GitHubIcon from '@material-ui/icons/GitHub';
 import Stats from './Stats'
-import {CircularProgress} from '@material-ui/core'
+import {CircularProgress, Paper} from '@material-ui/core'
 import Chip from '@material-ui/core/Chip'
 import DescriptionIcon from '@material-ui/icons/Description'
 import Snackbar from '@material-ui/core/Snackbar'
 import MuiAlert from '@material-ui/lab/Alert';
+import PRizzTipAddresses from 'prizz-tip-addresses'
+import Link from '@material-ui/core/Link'
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -51,6 +46,10 @@ const useStyles = makeStyles(theme => ({
       display: 'block',
     },
   },
+  tipCode: {
+    color: 'blue',
+    overflowWrap: 'break-word'
+  },
   search: {
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
@@ -61,6 +60,7 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(2),
     marginLeft: 0,
     width: '100%',
+    flexGrow: 1,
     [theme.breakpoints.up('sm')]: {
       marginLeft: theme.spacing(3),
       width: 'auto',
@@ -92,97 +92,106 @@ const useStyles = makeStyles(theme => ({
       display: 'flex',
     },
   },
-  sectionMobile: {
-    display: 'flex',
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-}));
+  footerColumn: {
+    flex: 1,
+    flexDirection: 'column',
+    padding: 12
+  }
+}))
+
+function Footer() {
+  const classes = useStyles()
+  return (
+    <footer style={{backgroundColor: '#F1F1FF', paddingTop: 30, paddingBottom: 30}}>
+      <Container>
+        <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-even', alignItems: 'center'}}>
+          <div className={classes.footerColumn} style={{}}>
+            <Typography variant={'h6'}>
+              Multi Hash
+            </Typography>
+
+            <p>
+              Multi Hash is a webapp to quickly and easily
+              generate common hashes with simple text, file, or random data.
+            </p>
+            <p>It is a <Link
+              href={'https://developers.google.com/web/progressive-web-apps'}
+              variant="button"
+              color="primary"
+              target="_blank"
+              rel="noopener">
+              Progressive Web App (PWA)
+            </Link> that can run offline.</p>
+            <p>All hashing is done in your browser and varies based on the strength of your processing power.</p>
+            <p>It utilizes web workers for hashing to prevent the UI thread from being blocked.</p>
+            <p>It displays basic hashing stats and speeds based on your in-browser performance.</p>
+          </div>
+
+          <div className={classes.footerColumn}>
+            <p>Multi Hash was developed by
+              <Button
+                variant="contained"
+                color="primary"
+                href="https://github.com/pRizz/"
+                target="_blank"
+                rel="noopener"
+                className={classes.button}
+                style={{marginLeft: 12, marginRight: 12}}
+                startIcon={<GitHubIcon/>}
+              >
+                @pRizz
+              </Button>
+            </p>
+            <p>Copyright © 2020 Peter Ryszkiewicz</p>
+            <p>Check out my other crypto projects at <Link
+              href="https://www.prizzventuresllc.com"
+              variant="button"
+              target="_blank">www.prizzventuresllc.com</Link></p>
+            <p className={classes.footerColumn}>
+              <Link
+                href="https://www.prizzventuresllc.com/PrivacyPolicy.txt"
+                variant="button"
+                color="primary"
+                target="_blank"
+                rel="noopener"
+              >Privacy Policy</Link>
+            </p>
+          </div>
+
+        </div>
+        <div>
+          <p>If you like these apps and want to support me making more, please consider tipping me at these
+            addresses:</p>
+          <div>
+            IOTA: <code className={classes.tipCode}>{PRizzTipAddresses.IOTA}</code>
+          </div>
+          <div>
+            NANO: <code className={classes.tipCode}>{PRizzTipAddresses.NANO}</code>
+          </div>
+          <div>
+            BANANO: <code className={classes.tipCode}>{PRizzTipAddresses.BANANO}</code>
+          </div>
+          <div>
+            ETH: <code className={classes.tipCode}>{PRizzTipAddresses.ETH}</code>
+          </div>
+          <div>
+            BTC: <code className={classes.tipCode}>{PRizzTipAddresses.BTC}</code>
+          </div>
+          <div>
+            Thanks for your support!
+          </div>
+        </div>
+
+      </Container>
+
+    </footer>
+  )
+}
 
 function PrimarySearchAppBar(props) {
   const {onFilterValueChange} = props
 
   const classes = useStyles()
-  const [anchorEl, setAnchorEl] = React.useState(null)
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
-
-  const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
-  const handleProfileMenuOpen = event => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    handleMobileMenuClose();
-  };
-
-  const handleMobileMenuOpen = event => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
-
-  const menuId = 'primary-search-account-menu';
-  const renderMenu = (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{vertical: 'top', horizontal: 'right'}}
-      id={menuId}
-      keepMounted
-      transformOrigin={{vertical: 'top', horizontal: 'right'}}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
-    >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-    </Menu>
-  );
-
-  const mobileMenuId = 'primary-search-account-menu-mobile';
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{vertical: 'top', horizontal: 'right'}}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{vertical: 'top', horizontal: 'right'}}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-    >
-      <MenuItem>
-        <IconButton aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="secondary">
-            <MailIcon/>
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton aria-label="show 11 new notifications" color="inherit">
-          <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon/>
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle/>
-        </IconButton>
-        <p>Profile</p>
-      </MenuItem>
-    </Menu>
-  );
 
   return (
     <div className={classes.grow}>
@@ -215,42 +224,19 @@ function PrimarySearchAppBar(props) {
               }}
             />
           </div>
-          <div className={classes.grow}/>
-          <div className={classes.sectionMobile}>
-            <IconButton
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
-            >
-              <MoreIcon/>
-            </IconButton>
-          </div>
-          <Button
+          <IconButton
             href="https://github.com/pRizz/multi-hash"
             target="_blank"
             rel="noopener"
             variant="contained"
             className={classes.button}
-            startIcon={<GitHubIcon/>}
-          >
-            Source Code
-          </Button>
-          <div style={{width: 12}}></div>
-          <Button
-            href="https://www.prizzventuresllc.com/"
-            target="_blank"
-            rel="noopener"
-            variant="contained"
-            className={classes.button}
-          >
-            P Rizz Ventures
-          </Button>
+            color="inherit"
+            aria-label="github"
+            component="span">
+            <GitHubIcon/>
+          </IconButton>
         </Toolbar>
       </AppBar>
-      {renderMobileMenu}
-      {renderMenu}
     </div>
   );
 }
@@ -329,10 +315,6 @@ const randomDataModels = [
   }
 ]
 
-function generateRandomData(byteCount) {
-  return Buffer.alloc(byteCount)
-}
-
 function HashRandomDataButtons(props) {
   const {onDataToHash} = props
 
@@ -345,8 +327,7 @@ function HashRandomDataButtons(props) {
           key={randomDataModel.name}
           style={{margin: 8}}
           onClick={() => {
-            const bufferToHash = generateRandomData(randomDataModel.byteCount)
-            onDataToHash(bufferToHash)
+            onDataToHash(randomDataModel.byteCount)
           }}
         >
           {randomDataModel.name}
@@ -402,10 +383,20 @@ function App() {
   const [statsDescription, setStatsDescription] = React.useState("")
   const [hashDoneSnackbarOpen, setHashDoneSnackbarOpen] = React.useState(false)
 
+  const handleRandomData = (opts) => {
+    const {byteCount, buffer} = opts
+    console.log(byteCount)
+    console.log(buffer)
+    handleRandomDataToHash(buffer)
+  }
+
   if (!hasWorkerListener) {
     hasWorkerListener = true
     hashWorker.addEventListener('message', (e) => {
       const {jobQueueCount} = e.data
+      if (e.data.type === "onRandomData") {
+        return handleRandomData(e.data.opts)
+      }
       if (jobQueueCount !== undefined) {
         setHashDoneSnackbarOpen(jobQueueCount === 0)
         setJobQueueCount(jobQueueCount)
@@ -427,9 +418,6 @@ function App() {
 
   const handleFileChange = fileInfo => {
     const {fileBuffer, fileName} = fileInfo
-    console.log('handleFileChange')
-    console.log(fileBuffer)
-    console.log(fileBuffer.byteLength)
     setBufferToHash(Buffer.from(fileBuffer))
     setFileToHashHelperText(`${fileName}: ${formatBytes(fileBuffer.byteLength)}`)
     setStatsDescription(`${formatBytes(fileBuffer.byteLength)} of a file`)
@@ -462,8 +450,17 @@ function App() {
 
   const isLoading = jobQueueCount > 0
 
-  const handleHashDoneSnackarClose = () => {
+  const handleHashDoneSnackbarClose = () => {
     setHashDoneSnackbarOpen(false)
+  }
+
+  const handleRandomDataButtonPressed = (byteCount) => {
+    hashWorker.postMessage({
+      type: 'onGetRandomData',
+      opts: {
+        byteCount
+      }
+    })
   }
 
   return (
@@ -512,7 +509,7 @@ function App() {
                   color="primary"
                   style={{marginTop: 20}}
                 />}
-                <div style={{marginBottom: 50}}></div>
+                <div style={{height: 50}}></div>
               </div>
             </section>
           )}
@@ -524,7 +521,7 @@ function App() {
           Random Data
         </Typography>
 
-        <HashRandomDataButtons onDataToHash={handleRandomDataToHash}/>
+        <HashRandomDataButtons onDataToHash={handleRandomDataButtonPressed}/>
 
         <div style={{height: '3em'}}/>
 
@@ -544,16 +541,15 @@ function App() {
           isLoading={isLoading}
         />
 
-        <Snackbar open={hashDoneSnackbarOpen} autoHideDuration={3000} onClose={handleHashDoneSnackarClose}>
-          <Alert onClose={handleHashDoneSnackarClose} severity="success">
+        <Snackbar open={hashDoneSnackbarOpen} autoHideDuration={3000} onClose={handleHashDoneSnackbarClose}>
+          <Alert onClose={handleHashDoneSnackbarClose} severity="success">
             Done hashing!
           </Alert>
         </Snackbar>
 
       </Container>
-      <div>
-        Footer TODO
-      </div>
+
+      <Footer/>
     </div>
   );
 }

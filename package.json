@@ -1,8 +1,13 @@
 {
   "name": "multi-hash-webapp",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "bin": "bin/www.js",
   "homepage": "https://prizz.github.io/multi-hash/",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pRizz/multi-hash.git"
+  },
   "dependencies": {
     "@babel/core": "7.8.4",
     "@material-ui/core": "^4.9.0",
@@ -51,6 +56,7 @@
     "postcss-normalize": "8.0.1",
     "postcss-preset-env": "6.7.0",
     "postcss-safe-parser": "4.0.1",
+    "prizz-tip-addresses": "^1.0.3",
     "react": "^16.12.0",
     "react-app-polyfill": "^1.0.6",
     "react-app-rewired": "^2.1.5",

@@ -4,6 +4,7 @@ import {
 } from 'recharts'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Typography from '@material-ui/core/Typography'
+import {Paper} from '@material-ui/core'
 
 const chartConfigs = [
   {
@@ -50,24 +51,27 @@ function ChartComponentsFromChartProps(props) {
             style={{alignSelf: 'center', alignItems: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', flexGrow: 1, margin: 'auto', height: '100%'}} />
         </div>}
 
-        <Typography variant="h4">
-          {chartProp.name}
-        </Typography>
-        <BarChart
-          width={500}
-          height={300}
-          data={chartProp.chartData}
-          margin={{
-            top: 5, right: 5, left: 5, bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3"/>
-          <XAxis dataKey="Hashing Function"/>
-          <YAxis/>
-          <Tooltip/>
-          <Legend/>
-          <Bar dataKey={chartProp.dataKey} fill="#8884d8"/>
-        </BarChart>
+        <Paper style={{padding: 20, margin: 20}}>
+          <Typography variant="h4">
+            {chartProp.name}
+          </Typography>
+          <BarChart
+            width={500}
+            height={300}
+            data={chartProp.chartData}
+            margin={{
+              top: 5, right: 5, left: 5, bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3"/>
+            <XAxis dataKey="Hashing Function"/>
+            <YAxis/>
+            <Tooltip/>
+            <Legend/>
+            <Bar dataKey={chartProp.dataKey} fill="#8884d8"/>
+          </BarChart>
+        </Paper>
+        
       </div>
     )
   })
