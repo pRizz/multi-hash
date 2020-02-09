@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import './App.css';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container'
@@ -26,6 +26,8 @@ import Snackbar from '@material-ui/core/Snackbar'
 import MuiAlert from '@material-ui/lab/Alert';
 import PRizzTipAddresses from 'prizz-tip-addresses'
 import Link from '@material-ui/core/Link'
+import {formatBytes} from './Util'
+import {MBToHashInput} from './MBToHashInput'
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -93,9 +95,11 @@ const useStyles = makeStyles(theme => ({
     },
   },
   footerColumn: {
-    flex: 1,
+    flex: '1 1 auto',
     flexDirection: 'column',
-    padding: 12
+    padding: 12,
+    flexBasis: 1,
+    minWidth: 400
   }
 }))
 
@@ -104,7 +108,12 @@ function Footer() {
   return (
     <footer style={{backgroundColor: '#F1F1FF', paddingTop: 30, paddingBottom: 30}}>
       <Container>
-        <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-even', alignItems: 'center'}}>
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          flexDirection: 'row',
+          justifyContent: 'space-even',
+          alignItems: 'center'}}>
           <div className={classes.footerColumn} style={{}}>
             <Typography variant={'h6'}>
               Multi Hash
@@ -231,45 +240,14 @@ function PrimarySearchAppBar(props) {
             variant="contained"
             className={classes.button}
             color="inherit"
-            aria-label="github"
-            component="span">
+            aria-label="source code"
+          >
             <GitHubIcon/>
           </IconButton>
         </Toolbar>
       </AppBar>
     </div>
   );
-}
-
-// https://en.wikipedia.org/wiki/Orders_of_magnitude_(data)
-// [1000^value, prefix]
-const byteFormatterList = [
-  [8, 'Y'],
-  [7, 'Z'],
-  [6, 'E'],
-  [5, 'P'],
-  [4, 'T'],
-  [3, 'G'],
-  [2, 'M'],
-  [1, 'k'],
-].map((byteArgs) => {
-  return {
-    minValue: Math.pow(1000, byteArgs[0]),
-    prefix: byteArgs[1]
-  }
-})
-
-// https://en.wikipedia.org/wiki/Orders_of_magnitude_(data)
-// converts the input (number of bytes) to a human readable number, like 500 bytes or 3.5 MB
-function formatBytes(numberOfBytes) {
-  for (const byteFormat of byteFormatterList) {
-    if (numberOfBytes >= byteFormat.minValue) {
-      return `${(numberOfBytes / byteFormat.minValue).toLocaleString(undefined, {
-        maximumFractionDigits: 3
-      })} ${byteFormat.prefix}B`
-    }
-  }
-  return `${numberOfBytes} bytes`
 }
 
 // from https://jsperf.com/utf-8-byte-length
@@ -287,31 +265,31 @@ function byteLength(str) {
 const randomDataModels = [
   {
     name: "10 KB",
-    byteCount: 1000 * 10
+    byteCount:  10 * 1e3
   },
   {
     name: "100 KB",
-    byteCount: 100 * 1000
+    byteCount: 100 * 1e3
   },
   {
     name: "1 MB",
-    byteCount: 1000 * 1000
+    byteCount: 1e6
   },
   {
     name: "10 MB",
-    byteCount: 10 * 1000 * 1000
+    byteCount: 10 * 1e6
   },
   {
     name: "100 MB",
-    byteCount: 100 * 1000 * 1000
+    byteCount: 100 * 1e6
   },
   {
     name: "500 MB (slow)",
-    byteCount: 500 * 1000 * 1000
+    byteCount: 500 * 1e6
   },
   {
     name: "1 GB (slow)",
-    byteCount: 1000 * 1000 * 1000
+    byteCount: 1e9
   }
 ]
 
@@ -382,11 +360,13 @@ function App() {
   const [statsData, setStatsData] = React.useState([])
   const [statsDescription, setStatsDescription] = React.useState("")
   const [hashDoneSnackbarOpen, setHashDoneSnackbarOpen] = React.useState(false)
+  const [waitingForRandomData, setWaitingForRandomData] = React.useState(false)
 
   const handleRandomData = (opts) => {
     const {byteCount, buffer} = opts
     console.log(byteCount)
     console.log(buffer)
+    setWaitingForRandomData(false)
     handleRandomDataToHash(buffer)
   }
 
@@ -455,6 +435,7 @@ function App() {
   }
 
   const handleRandomDataButtonPressed = (byteCount) => {
+    setWaitingForRandomData(true)
     hashWorker.postMessage({
       type: 'onGetRandomData',
       opts: {
@@ -462,6 +443,8 @@ function App() {
       }
     })
   }
+
+  const hashesTitle = isLoading ? `Hashing ${statsDescription} | Job queue count: ${jobQueueCount}` : `Hashes for ${statsDescription || 'null value'}`
 
   return (
     <div className="App">
@@ -499,8 +482,7 @@ function App() {
             <section style={{border: 'dashed gray', borderColor: (fileToHashHelperText ? 'blue' : 'gray')}}>
               <div {...getRootProps()}>
                 <input {...getInputProps()} />
-                <p style={{fontSize: 30, paddingTop: 50, margin: 0}}>Drag 'n' drop a file here, or click to select a
-                  file</p>
+                <p style={{fontSize: 30, paddingTop: 50, margin: 0, paddingLeft: 30, paddingRight: 30}}>Drag 'n' drop a file here, or click to select a file</p>
                 <p style={{fontSize: 30, margin: 4}}>(hashing is done locally)</p>
                 {fileToHashHelperText && <Chip
                   icon={<DescriptionIcon></DescriptionIcon>}
@@ -517,18 +499,44 @@ function App() {
 
         <OrBreak/>
 
-        <Typography variant={'h5'}>
+        <Typography variant={'h4'}>
           Random Data
         </Typography>
 
         <HashRandomDataButtons onDataToHash={handleRandomDataButtonPressed}/>
 
+        {waitingForRandomData && <Typography variant={'h5'} style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          margin: 12,
+          textAlign: "center"
+        }}>
+          Generating Random Data
+          <CircularProgress
+            style={{
+              alignSelf: 'center',
+              alignItems: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              margin: 8
+            }}/>
+        </Typography>}
+
+        <OrBreak/>
+
+        <Typography variant={'h5'} style={{margin: 8}}>
+          Custom Size Random Data
+        </Typography>
+        <MBToHashInput onDataToHash={handleRandomDataButtonPressed}/>
+
         <div style={{height: '3em'}}/>
 
         <Typography variant={'h3'}>
-          Hash job queue count: {jobQueueCount}
+          {hashesTitle}
         </Typography>
-        {isLoading && <CircularProgress/>}
+        {isLoading && <CircularProgress style={{margin: 20}} />}
 
         <HashInfos bufferToHash={bufferToHash}
                    filterText={filterText}

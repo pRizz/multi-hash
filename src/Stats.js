@@ -56,7 +56,7 @@ function ChartComponentsFromChartProps(props) {
             {chartProp.name}
           </Typography>
           <BarChart
-            width={500}
+            width={400}
             height={300}
             data={chartProp.chartData}
             margin={{
