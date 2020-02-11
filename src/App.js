@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import './App.css';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container'
@@ -151,6 +151,12 @@ function Footer() {
                 @pRizz
               </Button>
             </p>
+            <p>
+              You can run locally with
+            </p>
+            <pre>
+              npx multi-hash-webapp
+            </pre>
             <p>Copyright © 2020 Peter Ryszkiewicz</p>
             <p>Check out my other crypto projects at <Link
               href="https://www.prizzventuresllc.com"
@@ -361,7 +367,7 @@ function App() {
   const [statsDescription, setStatsDescription] = React.useState("")
   const [hashDoneSnackbarOpen, setHashDoneSnackbarOpen] = React.useState(false)
   const [waitingForRandomData, setWaitingForRandomData] = React.useState(false)
-
+  
   const handleRandomData = (opts) => {
     const {byteCount, buffer} = opts
     console.log(byteCount)
@@ -538,9 +544,10 @@ function App() {
         </Typography>
         {isLoading && <CircularProgress style={{margin: 20}} />}
 
-        <HashInfos bufferToHash={bufferToHash}
-                   filterText={filterText}
-                   onHashInfoData={handleHashInfoData}
+        <HashInfos
+          bufferToHash={bufferToHash}
+          filterText={filterText}
+          onHashInfoData={handleHashInfoData}
         />
 
         <Stats
