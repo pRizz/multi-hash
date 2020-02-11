@@ -367,7 +367,7 @@ function App() {
   const [statsDescription, setStatsDescription] = React.useState("")
   const [hashDoneSnackbarOpen, setHashDoneSnackbarOpen] = React.useState(false)
   const [waitingForRandomData, setWaitingForRandomData] = React.useState(false)
-  
+
   const handleRandomData = (opts) => {
     const {byteCount, buffer} = opts
     console.log(byteCount)
