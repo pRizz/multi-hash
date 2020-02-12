@@ -43,7 +43,7 @@ function chartPropsFromStatsProps(statsProps) {
 function ChartComponentsFromChartProps(props) {
   const {chartProps, isLoading} = props
 
-  const width = 600
+  const width = 360
   const maxWidth = width + 100
 
   return chartProps.map(chartProp => {
