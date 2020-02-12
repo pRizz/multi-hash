@@ -17,7 +17,7 @@ import Dropzone from 'react-dropzone'
 import {hashFunctionProps} from './HashFunctionDefinitions'
 import HashWorker from './HashWorker.worker'
 import Button from '@material-ui/core/Button'
-import GitHubIcon from '@material-ui/icons/GitHub';
+import GitHubIcon from '@material-ui/icons/GitHub'
 import Stats from './Stats'
 import {CircularProgress, Paper} from '@material-ui/core'
 import Chip from '@material-ui/core/Chip'
@@ -28,6 +28,8 @@ import PRizzTipAddresses from 'prizz-tip-addresses'
 import Link from '@material-ui/core/Link'
 import {formatBytes} from './Util'
 import {MBToHashInput} from './MBToHashInput'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faNpm} from '@fortawesome/free-brands-svg-icons'
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -113,7 +115,8 @@ function Footer() {
           flexWrap: 'wrap',
           flexDirection: 'row',
           justifyContent: 'space-even',
-          alignItems: 'center'}}>
+          alignItems: 'center'
+        }}>
           <div className={classes.footerColumn} style={{}}>
             <Typography variant={'h6'}>
               Multi Hash
@@ -240,6 +243,17 @@ function PrimarySearchAppBar(props) {
             />
           </div>
           <IconButton
+            href="https://www.npmjs.com/package/multi-hash-webapp"
+            target="_blank"
+            rel="noopener"
+            variant="contained"
+            className={classes.button}
+            color="inherit"
+            aria-label="npm package"
+          >
+            <FontAwesomeIcon icon={faNpm}/>
+          </IconButton>
+          <IconButton
             href="https://github.com/pRizz/multi-hash"
             target="_blank"
             rel="noopener"
@@ -271,7 +285,7 @@ function byteLength(str) {
 const randomDataModels = [
   {
     name: "10 KB",
-    byteCount:  10 * 1e3
+    byteCount: 10 * 1e3
   },
   {
     name: "100 KB",
@@ -488,7 +502,8 @@ function App() {
             <section style={{border: 'dashed gray', borderColor: (fileToHashHelperText ? 'blue' : 'gray')}}>
               <div {...getRootProps()}>
                 <input {...getInputProps()} />
-                <p style={{fontSize: 30, paddingTop: 50, margin: 0, paddingLeft: 30, paddingRight: 30}}>Drag 'n' drop a file here, or click to select a file</p>
+                <p style={{fontSize: 30, paddingTop: 50, margin: 0, paddingLeft: 30, paddingRight: 30}}>Drag 'n' drop a
+                  file here, or click to select a file</p>
                 <p style={{fontSize: 30, margin: 4}}>(hashing is done locally)</p>
                 {fileToHashHelperText && <Chip
                   icon={<DescriptionIcon></DescriptionIcon>}
@@ -542,7 +557,7 @@ function App() {
         <Typography variant={'h3'}>
           {hashesTitle}
         </Typography>
-        {isLoading && <CircularProgress style={{margin: 20}} />}
+        {isLoading && <CircularProgress style={{margin: 20}}/>}
 
         <HashInfos
           bufferToHash={bufferToHash}
