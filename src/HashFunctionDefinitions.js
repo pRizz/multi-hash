@@ -55,7 +55,7 @@ export const hashFunctionProps = [
     }
   },
   {
-    hashingFunctionName: 'SHA-256 (window.crypto)',
+    hashingFunctionName: 'SHA2-256 (window.crypto)',
     hashingFunctionAsync: (buffer) => {
       return crypto.subtle.digest('SHA-256', buffer).then(hash => {
         return hashToHex(hash)
@@ -63,7 +63,7 @@ export const hashFunctionProps = [
     }
   },
   {
-    hashingFunctionName: 'SHA-384 (window.crypto)',
+    hashingFunctionName: 'SHA2-384 (window.crypto)',
     hashingFunctionAsync: function (buffer) {
       return crypto.subtle.digest('SHA-384', buffer).then(hash => {
         return hashToHex(hash)
@@ -71,7 +71,7 @@ export const hashFunctionProps = [
     }
   },
   {
-    hashingFunctionName: 'SHA-512 (window.crypto)',
+    hashingFunctionName: 'SHA2-512 (window.crypto)',
     hashingFunctionAsync: function (buffer) {
       return crypto.subtle.digest('SHA-512', buffer).then(hash => {
         return hashToHex(hash)
