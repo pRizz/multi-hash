@@ -30,6 +30,7 @@ import {formatBytes} from './Util'
 import {MBToHashInput} from './MBToHashInput'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faNpm} from '@fortawesome/free-brands-svg-icons'
+import _ from 'underscore'
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -370,8 +371,11 @@ function OrBreak() {
   )
 }
 
+const debouncedTextChange = _.debounce((text, setBufferToHash) => {
+  setBufferToHash(bufferFromText(text))
+}, 500)
+
 function App() {
-  const [textToHash, setTextToHash] = React.useState("")
   const [bufferToHash, setBufferToHash] = React.useState(Buffer.alloc(0))
   const [textToHashHelperText, setTextToHashHelperText] = React.useState(formatBytes(0))
   const [filterText, setFilterText] = React.useState("")
@@ -406,12 +410,12 @@ function App() {
 
   const handleTextChange = event => {
     const text = event.target.value
-    setTextToHash(text)
-    setBufferToHash(bufferFromText(text))
     const byteCountFormatted = formatBytes(byteLength(text))
     setTextToHashHelperText(byteCountFormatted)
     setStatsDescription(`${formatBytes(byteLength(text))} of text`)
+    debouncedTextChange(text, setBufferToHash)
   }
+
   const handleFilterValueChange = (filterText) => {
     setFilterText(filterText)
   }
@@ -477,7 +481,6 @@ function App() {
           label="Text To Hash"
           multiline
           rows="4"
-          value={textToHash}
           onChange={handleTextChange}
           variant="outlined"
           helperText={textToHashHelperText}
