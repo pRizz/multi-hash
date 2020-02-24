@@ -106,6 +106,8 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
+const versionString = `v${process.env.REACT_APP_VERSION}`
+
 function Footer() {
   const classes = useStyles()
   return (
@@ -120,7 +122,7 @@ function Footer() {
         }}>
           <div className={classes.footerColumn} style={{}}>
             <Typography variant={'h6'}>
-              Multi Hash
+              Multi Hash {versionString}
             </Typography>
 
             <p>

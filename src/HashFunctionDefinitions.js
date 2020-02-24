@@ -1,5 +1,3 @@
-import {blake2bHex} from 'blakejs'
-import md5 from 'md5'
 import multihashing from 'multihashing-async'
 
 function multihashingBufferToArrayBuffer(multihashingBuffer) {

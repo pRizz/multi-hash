@@ -1,6 +1,6 @@
 {
   "name": "multi-hash-webapp",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "bin": "bin/www.js",
   "homepage": "https://prizz.github.io/multi-hash/",
   "license": "MIT",
@@ -28,7 +28,6 @@
     "babel-loader": "8.0.6",
     "babel-plugin-named-asset-import": "^0.3.6",
     "babel-preset-react-app": "^9.1.1",
-    "blakejs": "^1.1.0",
     "camelcase": "^5.3.1",
     "case-sensitive-paths-webpack-plugin": "2.3.0",
     "css-loader": "3.4.2",
@@ -51,7 +50,6 @@
     "jest-environment-jsdom-fourteen": "1.0.1",
     "jest-resolve": "24.9.0",
     "jest-watch-typeahead": "0.4.2",
-    "md5": "^2.2.1",
     "mini-css-extract-plugin": "0.9.0",
     "multihashing-async": "^0.8.0",
     "optimize-css-assets-webpack-plugin": "5.0.3",
@@ -85,7 +83,7 @@
     "worker-loader": "^2.0.0"
   },
   "scripts": {
-    "start": "node scripts/start.js ",
+    "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js"
   },
