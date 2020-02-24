@@ -26,6 +26,9 @@ const multihashingFunctionNames = [
   'keccak-512',
   'murmur3-128',
   'murmur3-32',
+  'blake2b-256',
+  'blake2b-512',
+  'blake2s-256'
 ]
 
 // from https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest

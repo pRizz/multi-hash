@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import './App.css';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container'
@@ -19,7 +19,7 @@ import HashWorker from './HashWorker.worker'
 import Button from '@material-ui/core/Button'
 import GitHubIcon from '@material-ui/icons/GitHub'
 import Stats from './Stats'
-import {CircularProgress, Paper} from '@material-ui/core'
+import {CircularProgress} from '@material-ui/core'
 import Chip from '@material-ui/core/Chip'
 import DescriptionIcon from '@material-ui/icons/Description'
 import Snackbar from '@material-ui/core/Snackbar'
@@ -284,6 +284,10 @@ function byteLength(str) {
 }
 
 const randomDataModels = [
+  {
+    name: "0 Bytes",
+    byteCount: 0
+  },
   {
     name: "10 KB",
     byteCount: 10 * 1e3
