@@ -15,7 +15,7 @@ npx multi-hash-webapp
 
 ## Running locally as a binary
 
-Install swagger editor as a global binary with either
+Install as a global binary with either
 
 ```bash
 npm i -g multi-hash-webapp

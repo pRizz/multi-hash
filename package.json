@@ -1,6 +1,6 @@
 {
   "name": "multi-hash-webapp",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "bin": "bin/www.js",
   "homepage": "https://prizz.github.io/multi-hash/",
   "license": "MIT",
